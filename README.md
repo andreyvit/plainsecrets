@@ -86,7 +86,7 @@ To load secrets from code:
 ```go
 keyring := must(plainsecrets.ParseKeyringFile(".keyring"))
 
-values := must(plainsecrets.LoadFileValues("secrets.txt", env, keyring))
+values := must(plainsecrets.LoadFileValues("secrets.txt", env, keyring, true))
 for k, v := range values {
     log.Printf("\t%s = %s", k, v)
 }
