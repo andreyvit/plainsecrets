@@ -3,6 +3,8 @@ plainsecrets: Encrypted plaintext secrets in Go apps
 
 [![Go reference](https://pkg.go.dev/badge/github.com/andreyvit/plainsecrets.svg)](https://pkg.go.dev/github.com/andreyvit/plainsecrets) ![only dependency is golang.org/x/crypto](https://img.shields.io/badge/only%20dependency-golang.org%2Fx%2Fcrypto-green) ![50% coverage](https://img.shields.io/badge/coverage-50%25-yellow) [![Go Report Card](https://goreportcard.com/badge/github.com/andreyvit/plainsecrets)](https://goreportcard.com/report/github.com/andreyvit/plainsecrets)
 
+Uses NaCl-compatible secretbox encryption (XSalsa20 + Poly1305) via [golang.org/x/crypto/nacl/secretbox](https://pkg.go.dev/golang.org/x/crypto/nacl/secretbox).
+
 
 Why?
 ----
@@ -30,11 +32,11 @@ plainsecrets -K .keyring -addkey myapp-prod
 Declare environments and values in `secrets.txt`:
 
 ```ini
-@all = production staging localdev
+@all = prod staging localdev
 @localdev = local-*
-@nonprod = ! production
+@nonprod = ! prod
 
-THREADS.production = 10
+THREADS.prod = 10
 THREADS.localdev = 5
 THREADS.local-john = 4
 
@@ -87,6 +89,87 @@ for k, v := range values {
     log.Printf("\t%s = %s", k, v)
 }
 ```
+
+
+Keyring File Format
+-------------------
+
+```ini
+myapp-prod=rTYS3+vPf0XfCPW4tCykpQoqcxMyiciNLaDlj+VSuQU=
+myapp-dev=5OnO+jqOo/hhz1DVJox3TpaefmbwFqbiw6HYfuogz+Y=
+```
+
+
+Secrets File Format
+-------------------
+
+Secrets and settings are adjustable per environment. Define environments in the file:
+
+1. Define groups of environments via `@group = env1 group2 env3...`. Groups can include other groups.
+2. You can use `*` wildcard in group definitions, e.g. `@local = local-*`. This group will include `local-john`, `local-bob`, etc.
+3. You MUST define all possible environments as group `all`, e.g. `@all = prod stag dev local-*`. Use `*` to allow any environment names: `@all = *`.
+4. Setting or querying values for environments outside of `@all` will return an error. This is meant to protect from typos in configurations going unnoticed.
+
+Then define values of secrets:
+
+1. Use `SECRET_NAME.env = VALUE` syntax. Omitting `.env` (`SECRET_NAME = VALUE`) is the same as saying `.all`. Env can be either a specific environment or a group defined above.
+2. You can set different values for different environments. A value MUST be set for EVERY environment in `@all`. This is to ensure that if the app has sufficient secrets in dev, it will also have sufficient secrets in production. Secrets file will refuse to load otherwise.
+3. Use `SECRET_NAME.env = NONE` to explicitly indicate that no value is provided for the given environment. In this case, querying the secret in the given environment will return an empty string with no error.
+4. Use `SECRET_NAME.env = TODO` or `SECRET_NAME.env = TODO: comment` to indicate that a value will be provided later. Querying the secret in the given environment will return an error. This is meant to be used in example files.
+5. Use `SECRET_NAME.env = enc:<keyname>:<value>` to indicate that plaintext value should be encrypted with the given key, and replaced with encrypted one.
+6. Use `SECRET_NAME.env = enc::<value>` to auto-select the key based on the environment and `DEFAULT_KEY` setting.
+7. Use `SECRET_NAME.env = secret:<keyname>:<nonce>:<ciphertext>` for encrypted secrets. Use `enc::...` or `enc:<keyname>:...` values to produce these.
+8. The order of values does not matter. In case multiple rows apply to a given environment (say, `FOO.nonprod` and `FOO.local` both match `local-john`):
+    - longer wildcards win over shorter wildcards (e.g. a group that included local-john wins over a group matching `local-*`);
+    - for matches of same length, narrower groups win over broader groups (e.g. single environment name wins over a group matching 2 environments, which wins over a group matching 3 environments);
+    - if the match length and group size is the same, it is an error for multiple groups to match.
+
+Example:
+
+```ini
+# This file starts with environment group definitions:
+#
+#     @group1 = env1 env2 group2 env4 ...
+#
+# followed by a bunch of secrets:
+#
+#     NAME1 = value1
+#     NAME2 = value2
+#
+# which can be customized per env or env group:
+#
+#     NAME1.env1 = value3
+#     NAME1.group2 = value4
+#
+# The order of declarations doesn't matter. Values set for
+# narower groups win over values set for broader groups.
+# Setting conflicting values for equal-sized groups is an error.
+
+# @all is required and declares valid environments, use * to allow any,
+# can include subgroups.
+@all = prod staging local
+@staging = stag dev branches
+@local = local-*
+@branches = b-*
+
+# use ! to negate entire list
+@nonprod = ! prod
+@devstag = dev stag
+@nonjohn = ! local-john
+
+DEFAULT_KEY.prod = myapp-prod
+DEFAULT_KEY = myapp-dev
+
+FOO.local-john = 1
+FOO.local = 2
+FOO.nonprod = 3
+FOO.prod = 4
+
+ACME_CLIENT_KEY=secret:myapp-dev:A3lTDIMkbrUK92o71D8lhcpFN1SqfPYw:hKOYGyNQ8nAZ8caTD4Zng4EXDPZ61rlpzTjY
+ACME_CLIENT_KEY.prod=secret:myapp-prod:aHyVs0drNzWPnMC6t1ZZxuwg+k1HwV3o:+rle6B2otsa9gXvJ5yr/CaV+1w==
+
+````
+
 
 
 Contributing
