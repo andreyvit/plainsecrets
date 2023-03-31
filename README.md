@@ -1,7 +1,7 @@
 plainsecrets: Encrypted plaintext secrets in Go apps
 ====================================================
 
-[![Go reference](https://pkg.go.dev/badge/github.com/andreyvit/secrets.svg)](https://pkg.go.dev/github.com/andreyvit/secrets) ![only dependency is golang.org/x/crypto](https://img.shields.io/badge/only%20dependency-golang.org%2Fx%2Fcrypto-green) ![50% coverage](https://img.shields.io/badge/coverage-50%25-yellow) [![Go Report Card](https://goreportcard.com/badge/github.com/andreyvit/secrets)](https://goreportcard.com/report/github.com/andreyvit/secrets)
+[![Go reference](https://pkg.go.dev/badge/github.com/andreyvit/plainsecrets.svg)](https://pkg.go.dev/github.com/andreyvit/plainsecrets) ![only dependency is golang.org/x/crypto](https://img.shields.io/badge/only%20dependency-golang.org%2Fx%2Fcrypto-green) ![50% coverage](https://img.shields.io/badge/coverage-50%25-yellow) [![Go Report Card](https://goreportcard.com/badge/github.com/andreyvit/plainsecrets)](https://goreportcard.com/report/github.com/andreyvit/plainsecrets)
 
 
 Why?
@@ -79,14 +79,24 @@ plainsecrets -K .keyring -f secrets.txt 'OPENAI_CLIENT_SECRET'
 
 To load secrets from code:
 
+```go
+keyring := must(plainsecrets.ParseKeyringFile(".keyring"))
 
+values := must(plainsecrets.LoadFileValues("secrets.txt", env, keyring))
+for k, v := range values {
+    log.Printf("\t%s = %s", k, v)
+}
+```
 
 
 Contributing
 ------------
 
-TODO
+Contributions are welcome, but keep in mind that I want to keep this library focused.
 
+Auto-testing via modd (`go install github.com/cortesi/modd/cmd/modd@latest`):
+
+    modd
 
 
 MIT license
