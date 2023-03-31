@@ -7,7 +7,7 @@ import (
 	"os"
 	"path"
 
-	"github.com/andreyvit/secrets"
+	"github.com/andreyvit/plainsecrets"
 )
 
 func main() {
@@ -39,7 +39,7 @@ func main() {
 		}
 	}
 
-	keyring, err := secrets.ParseKeyringFile(keyringFile)
+	keyring, err := plainsecrets.ParseKeyringFile(keyringFile)
 	if err != nil && os.IsNotExist(err) && addKey != "" {
 		err = nil
 	}
@@ -48,7 +48,7 @@ func main() {
 	}
 
 	if addKey != "" {
-		keyring.Add(secrets.NewKey(addKey))
+		keyring.Add(plainsecrets.NewKey(addKey))
 		ensure(os.WriteFile(keyringFile, []byte(keyring.Data()), 0600))
 	}
 
@@ -65,10 +65,10 @@ func main() {
 		}
 	}
 
-	vals, err := secrets.ParseFile(secretsFile)
+	vals, err := plainsecrets.ParseFile(secretsFile)
 	if err != nil && os.IsNotExist(err) {
 		err = nil
-		vals = secrets.New()
+		vals = plainsecrets.New()
 	}
 	if err != nil {
 		ensure(err)
@@ -77,7 +77,7 @@ func main() {
 	if flag.NArg() > 0 {
 		patterns := flag.Args()
 		for _, pat := range patterns {
-			if !secrets.IsValidValueNameWildcard(pat) {
+			if !plainsecrets.IsValidValueNameWildcard(pat) {
 				log.Fatalf("** invalid pattern %q", pat)
 			}
 		}

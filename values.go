@@ -1,4 +1,4 @@
-package secrets
+package plainsecrets
 
 import (
 	"crypto/rand"
@@ -35,6 +35,31 @@ func New() *Values {
 		resolvedEnvs: make(map[string]*resolvedEnvGroup),
 		entries:      make(map[string][]*entry),
 	}
+}
+
+func LoadFileValues(path, env string, keyring Keyring) (map[string]string, error) {
+	vals, err := ParseFile(path)
+	if err != nil {
+		return nil, err
+	}
+	return vals.EnvValues(env, keyring)
+}
+
+func LoadStringValues(data, env string, keyring Keyring) (map[string]string, error) {
+	vals, err := ParseString(data)
+	if err != nil {
+		return nil, err
+	}
+	return vals.EnvValues(env, keyring)
+}
+
+func LoadMapValues(data map[string]string, env string, keyring Keyring) (map[string]string, error) {
+	vals := New()
+	err := vals.ParseMap(data)
+	if err != nil {
+		return nil, err
+	}
+	return vals.EnvValues(env, keyring)
 }
 
 func (vals *Values) String() string {

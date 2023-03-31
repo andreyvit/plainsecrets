@@ -1,4 +1,4 @@
-package secrets
+package plainsecrets
 
 import (
 	"encoding/base64"

@@ -1,4 +1,4 @@
-module github.com/andreyvit/secrets
+module github.com/andreyvit/plainsecrets
 
 go 1.20
 
