@@ -23,8 +23,8 @@ Install:
 Generate keys and save to keyring:
 
 ```sh
-gosecrets -K .keyring -addkey myapp-dev
-gosecrets -K .keyring -addkey myapp-prod
+plainsecrets -K .keyring -addkey myapp-dev
+plainsecrets -K .keyring -addkey myapp-prod
 ```
 
 Declare environments and values in `secrets.txt`:
@@ -59,7 +59,7 @@ DEFAULT_KEY.production = myapp-prod
 then invoke:
 
 ```sh
-gosecrets -K .keyring -f secrets.txt
+plainsecrets -K .keyring -f secrets.txt
 ```
 
 which results in:
@@ -72,9 +72,9 @@ ROOT_PW.production=secret:myapp-prod:ZrABQcMmHwMjIKeVBhKt9vsQsFxEVstr:tNKmgPptQj
 To decrypt secrets from command line:
 
 ```sh
-gosecrets -K .keyring -f secrets.txt '*'
-gosecrets -K .keyring -f secrets.txt 'OPENAI_*'
-gosecrets -K .keyring -f secrets.txt 'OPENAI_CLIENT_SECRET'
+plainsecrets -K .keyring -f secrets.txt '*'
+plainsecrets -K .keyring -f secrets.txt 'OPENAI_*'
+plainsecrets -K .keyring -f secrets.txt 'OPENAI_CLIENT_SECRET'
 ```
 
 To load secrets from code:
