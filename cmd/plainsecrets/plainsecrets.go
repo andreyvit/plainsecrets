@@ -99,18 +99,17 @@ func main() {
 			if env == "" {
 				for _, v := range vals.ValueVariants(name, keyring) {
 					if v.Err != nil {
-						fmt.Printf("%s.%s -> ** %v\n", name, v.Env, v.Err)
+						fmt.Printf("# %s.%s -> ** %v\n", name, v.Env, v.Err)
 					} else {
-						fmt.Printf("%s.%s = %s\n", name, v.Env, v.Value)
+						fmt.Printf("%s.%s=%s\n", name, v.Env, v.Value)
 					}
 				}
 			} else {
-				for _, v := range vals.ValueVariants(name, keyring) {
-					if v.Err != nil {
-						fmt.Printf("%s.%s -> ** %v\n", name, v.Env, v.Err)
-					} else {
-						fmt.Printf("%s.%s = %s\n", name, v.Env, v.Value)
-					}
+				val, err := vals.Value(name, env, keyring)
+				if err != nil {
+					fmt.Printf("# %s -> ** %v\n", name, err)
+				} else {
+					fmt.Printf("%s=%s\n", name, val)
 				}
 			}
 		}
