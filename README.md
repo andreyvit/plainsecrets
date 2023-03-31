@@ -17,8 +17,8 @@ Usage
 
 Install:
 
-    go get github.com/andreyvit/secrets
-    go install github.com/andreyvit/secrets/cmd/gosecrets@latest
+    go get github.com/andreyvit/plainsecrets
+    go install github.com/andreyvit/plainsecrets/cmd/plainsecrets@latest
 
 Generate keys and save to keyring:
 
