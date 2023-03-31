@@ -37,11 +37,31 @@ func New() *Values {
 	}
 }
 
-func LoadFileValues(path, env string, keyring Keyring) (map[string]string, error) {
+func LoadFileValues(path, env string, keyring Keyring, autoEncrypt bool) (map[string]string, error) {
 	vals, err := ParseFile(path)
 	if err != nil {
 		return nil, err
 	}
+
+	if autoEncrypt {
+		_, failed, err := vals.EncryptAllInFile(path, keyring)
+		if err != nil {
+			return nil, fmt.Errorf("autoencrypt failed: %w", err)
+		}
+		if len(failed) > 0 {
+			var msgs []string
+			var msgSet = make(map[string]bool)
+			for _, v := range failed {
+				s := v.Err.Error()
+				if !msgSet[s] {
+					msgSet[s] = true
+					msgs = append(msgs, s)
+				}
+			}
+			return nil, fmt.Errorf("autoencrypt failed: %s", strings.Join(msgs, ", "))
+		}
+	}
+
 	return vals.EnvValues(env, keyring)
 }
 

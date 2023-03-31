@@ -48,14 +48,14 @@ To encrypt a new secret, first add to `secrets.txt`:
 
 ```ini
 ROOT_PW=enc::shortpassword
-ROOT_PW.production=enc::longpassword
+ROOT_PW.prod=enc::longpassword
 ```
 
 and configure `DEFAULT_KEY`:
 
 ```ini
 DEFAULT_KEY = myapp-dev
-DEFAULT_KEY.production = myapp-prod
+DEFAULT_KEY.prod = myapp-prod
 ```
 
 then invoke:
@@ -64,11 +64,13 @@ then invoke:
 plainsecrets -K .keyring -f secrets.txt
 ```
 
-which results in:
+(or just use LoadFileValues with last argument set to `true`, which will automatically encrypt new entries).
+
+This results in:
 
 ```ini
 ROOT_PW=secret:myapp-dev:bVsQKDhuMTMQVNnjjLPVHEnlMygh6M3O:Lg9L0jwxomhyqXPHGomZLg5O2KUZsRt240esWXM=
-ROOT_PW.production=secret:myapp-prod:ZrABQcMmHwMjIKeVBhKt9vsQsFxEVstr:tNKmgPptQjSDwWaBNidW0Q0+R+rIMuElyCKrAQ==
+ROOT_PW.prod=secret:myapp-prod:ZrABQcMmHwMjIKeVBhKt9vsQsFxEVstr:tNKmgPptQjSDwWaBNidW0Q0+R+rIMuElyCKrAQ==
 ````
 
 To decrypt secrets from command line:

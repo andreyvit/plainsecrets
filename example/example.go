@@ -15,7 +15,7 @@ func main() {
 
 	keyring := must(plainsecrets.ParseKeyringFile("testdata/keyring.txt"))
 
-	values := must(plainsecrets.LoadFileValues("testdata/secrets.txt", env, keyring))
+	values := must(plainsecrets.LoadFileValues("testdata/secrets.txt", env, keyring, true))
 	log.Printf("Secrets for env %s:", env)
 	for k, v := range values {
 		log.Printf("\t%s = %s", k, v)
